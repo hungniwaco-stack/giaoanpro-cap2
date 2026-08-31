@@ -6,12 +6,13 @@ import { sendActivationEmail } from "@/lib/email";
 import { PLAN_DAYS } from "@/lib/plans";
 
 // SePay gọi endpoint này mỗi khi phát hiện giao dịch trên tài khoản ngân hàng
-// đã liên kết. Xác thực bằng header Authorization: Bearer <SEPAY_WEBHOOK_API_KEY>
-// (cấu hình API key này trong dashboard SePay khi khai báo webhook URL).
+// đã liên kết. Xác thực bằng header Authorization: Apikey <SEPAY_WEBHOOK_API_KEY>
+// — đúng scheme "Apikey" SePay dùng (không phải "Bearer"), theo cấu hình
+// phương thức "API Key" trong dashboard SePay khi khai báo webhook.
 export async function POST(req: NextRequest) {
   const expectedKey = process.env.SEPAY_WEBHOOK_API_KEY;
   const auth = req.headers.get("authorization");
-  if (!expectedKey || auth !== `Bearer ${expectedKey}`) {
+  if (!expectedKey || auth !== `Apikey ${expectedKey}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
