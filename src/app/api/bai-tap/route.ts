@@ -42,25 +42,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server chưa cấu hình GEMINI_API_KEY" }, { status: 500 });
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const trial = await checkTrial(ip, "bai-tap");
-  if (!trial.allowed) {
-    return NextResponse.json({ error: "trial_exhausted" }, { status: 402 });
-  }
-
-  const { monHoc, khoiLop, tenBai, soBai } = await req.json();
-  if (!monHoc || !khoiLop || !tenBai) {
-    return NextResponse.json({ error: "Thiếu môn học, khối lớp hoặc chủ đề" }, { status: 400 });
-  }
-  if ([monHoc, khoiLop, tenBai].some((v) => typeof v !== "string" || v.length > 200)) {
-    return NextResponse.json({ error: "Nội dung nhập vào quá dài" }, { status: 400 });
-  }
-  const count = Number(soBai) || 8;
-  if (count < 1 || count > 30) {
-    return NextResponse.json({ error: "Số bài tập phải từ 1 đến 30" }, { status: 400 });
-  }
-
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const trial = await checkTrial(ip, "bai-tap");
+    if (!trial.allowed) {
+      return NextResponse.json({ error: "trial_exhausted" }, { status: 402 });
+    }
+
+    const { monHoc, khoiLop, tenBai, soBai } = await req.json();
+    if (!monHoc || !khoiLop || !tenBai) {
+      return NextResponse.json({ error: "Thiếu môn học, khối lớp hoặc chủ đề" }, { status: 400 });
+    }
+    if ([monHoc, khoiLop, tenBai].some((v) => typeof v !== "string" || v.length > 200)) {
+      return NextResponse.json({ error: "Nội dung nhập vào quá dài" }, { status: 400 });
+    }
+    const count = Number(soBai) || 8;
+    if (count < 1 || count > 30) {
+      return NextResponse.json({ error: "Số bài tập phải từ 1 đến 30" }, { status: 400 });
+    }
+
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
       contents: buildPrompt(monHoc, khoiLop, tenBai, count),
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     await consumeTrial(trial.uid, trial.ip, "bai-tap");
     return NextResponse.json({ ...JSON.parse(text), tenBai, monHoc, khoiLop });
   } catch (err) {
-    console.error("Gemini bai-tap error:", err);
+    console.error("Bai-tap error:", err);
     return NextResponse.json({ error: "Không thể tạo bài tập lúc này, vui lòng thử lại" }, { status: 502 });
   }
 }

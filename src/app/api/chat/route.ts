@@ -13,27 +13,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server chưa cấu hình GEMINI_API_KEY" }, { status: 500 });
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const trial = await checkTrial(ip, "chat");
-  if (!trial.allowed) {
-    return NextResponse.json({ error: "trial_exhausted" }, { status: 402 });
-  }
+  try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const trial = await checkTrial(ip, "chat");
+    if (!trial.allowed) {
+      return NextResponse.json({ error: "trial_exhausted" }, { status: 402 });
+    }
 
-  const { messages } = await req.json();
-  if (!Array.isArray(messages) || messages.length === 0 || messages.length > MAX_MESSAGES) {
-    return NextResponse.json({ error: "Nội dung trò chuyện không hợp lệ" }, { status: 400 });
-  }
-  for (const m of messages) {
-    if (
-      typeof m.content !== "string" ||
-      m.content.length > MAX_MESSAGE_LEN ||
-      (m.role !== "user" && m.role !== "model")
-    ) {
+    const { messages } = await req.json();
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > MAX_MESSAGES) {
       return NextResponse.json({ error: "Nội dung trò chuyện không hợp lệ" }, { status: 400 });
     }
-  }
+    for (const m of messages) {
+      if (
+        typeof m.content !== "string" ||
+        m.content.length > MAX_MESSAGE_LEN ||
+        (m.role !== "user" && m.role !== "model")
+      ) {
+        return NextResponse.json({ error: "Nội dung trò chuyện không hợp lệ" }, { status: 400 });
+      }
+    }
 
-  try {
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
       contents: messages.map((m: { role: "user" | "model"; content: string }) => ({
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     await consumeTrial(trial.uid, trial.ip, "chat");
     return NextResponse.json({ reply: text });
   } catch (err) {
-    console.error("Gemini chat error:", err);
+    console.error("Chat error:", err);
     return NextResponse.json({ error: "Không thể trả lời lúc này, vui lòng thử lại" }, { status: 502 });
   }
 }

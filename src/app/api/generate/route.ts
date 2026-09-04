@@ -61,24 +61,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server chưa cấu hình GEMINI_API_KEY" }, { status: 500 });
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const trial = await checkTrial(ip, "giao-an");
-  if (!trial.allowed) {
-    return NextResponse.json({ error: "trial_exhausted" }, { status: 402 });
-  }
-
-  const { monHoc, khoiLop, tenBai, trichDoanSgk } = await req.json();
-  if (!monHoc || !khoiLop || !tenBai) {
-    return NextResponse.json({ error: "Thiếu môn học, khối lớp hoặc tên bài" }, { status: 400 });
-  }
-  if ([monHoc, khoiLop, tenBai].some((v) => typeof v !== "string" || v.length > 200)) {
-    return NextResponse.json({ error: "Nội dung nhập vào quá dài" }, { status: 400 });
-  }
-  if (trichDoanSgk !== undefined && (typeof trichDoanSgk !== "string" || trichDoanSgk.length > 4000)) {
-    return NextResponse.json({ error: "Trích đoạn SGK quá dài" }, { status: 400 });
-  }
-
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const trial = await checkTrial(ip, "giao-an");
+    if (!trial.allowed) {
+      return NextResponse.json({ error: "trial_exhausted" }, { status: 402 });
+    }
+
+    const { monHoc, khoiLop, tenBai, trichDoanSgk } = await req.json();
+    if (!monHoc || !khoiLop || !tenBai) {
+      return NextResponse.json({ error: "Thiếu môn học, khối lớp hoặc tên bài" }, { status: 400 });
+    }
+    if ([monHoc, khoiLop, tenBai].some((v) => typeof v !== "string" || v.length > 200)) {
+      return NextResponse.json({ error: "Nội dung nhập vào quá dài" }, { status: 400 });
+    }
+    if (trichDoanSgk !== undefined && (typeof trichDoanSgk !== "string" || trichDoanSgk.length > 4000)) {
+      return NextResponse.json({ error: "Trích đoạn SGK quá dài" }, { status: 400 });
+    }
+
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
       contents: buildPrompt(monHoc, khoiLop, tenBai, trichDoanSgk),
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     // it sometimes "corrects" these to match its own reading of the topic.
     return NextResponse.json({ ...JSON.parse(text), tenBai, monHoc, khoiLop });
   } catch (err) {
-    console.error("Gemini generate error:", err);
+    console.error("Generate error:", err);
     return NextResponse.json({ error: "Không thể tạo giáo án lúc này, vui lòng thử lại" }, { status: 502 });
   }
 }
