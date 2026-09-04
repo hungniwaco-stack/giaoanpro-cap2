@@ -33,7 +33,10 @@ async function ensureUid() {
 }
 
 async function getTrialEntry(uid: string): Promise<TrialEntry> {
-  return (await redis.get<TrialEntry>(`trial:${uid}`)) ?? { counts: {}, activatedUntil: null };
+  const entry = await redis.get<TrialEntry>(`trial:${uid}`);
+  // Old entries (before per-feature quotas) had `count: number` instead of
+  // `counts` — default it so they don't crash reading a missing feature key.
+  return { counts: entry?.counts ?? {}, activatedUntil: entry?.activatedUntil ?? null };
 }
 
 async function getIpEntry(ip: string): Promise<IpEntry> {
