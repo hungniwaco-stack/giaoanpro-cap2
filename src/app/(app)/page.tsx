@@ -58,7 +58,7 @@ export default function GiaoAnPage() {
       const plan = data as LessonPlan;
       setLastPlan(plan);
       addEntry("giao-an", plan.tenBai, plan);
-      if (!isVip) useTrial();
+      if (!isVip) useTrial("giao-an");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Đã có lỗi xảy ra");
     } finally {
@@ -77,7 +77,7 @@ export default function GiaoAnPage() {
     URL.revokeObjectURL(url);
   }
 
-  const left = trialsLeft();
+  const left = trialsLeft("giao-an");
 
   return (
     <main className="px-6 py-8 sm:px-10 sm:py-10">
