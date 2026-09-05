@@ -19,6 +19,16 @@ body {
   background-color: var(--color-paper);
 }
 
+/* Pulsing seal-red glow around the VIP activation-code field — draws the eye
+   to the highest-intent conversion action without a flashing/distracting rate. */
+@keyframes glow-seal {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 59, 59, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(194, 59, 59, 0); }
+}
+.glow-activation {
+  animation: glow-seal 2.2s ease-in-out infinite;
+}
+
 /* Faint vở-ô-ly ruling: horizontal lines under the notebook card. */
 .notebook-ruled {
   background-image: repeating-linear-gradient(

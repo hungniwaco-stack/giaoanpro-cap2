@@ -34,13 +34,28 @@ async function downloadEntry(entry: HistoryEntry) {
   URL.revokeObjectURL(url);
 }
 
+const TYPE_FILTERS: { id: HistoryEntry["type"] | "all"; label: string }[] = [
+  { id: "all", label: "Tất cả" },
+  { id: "giao-an", label: "Giáo án" },
+  { id: "de-thi", label: "Đề thi" },
+  { id: "bai-tap", label: "Bài tập" },
+];
+
 export default function LichSuPage() {
   const { entries, removeEntry } = useHistoryStore();
   // Zustand persist only reads localStorage after mount; rendering the list
   // before that would mismatch the server-rendered empty state.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const visibleEntries = mounted ? entries : [];
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<HistoryEntry["type"] | "all">("all");
+
+  const allEntries = mounted ? entries : [];
+  const visibleEntries = allEntries.filter(
+    (e) =>
+      (typeFilter === "all" || e.type === typeFilter) &&
+      e.title.toLowerCase().includes(query.trim().toLowerCase())
+  );
 
   return (
     <main className="px-6 py-8 sm:px-10 sm:py-10">
@@ -49,9 +64,37 @@ export default function LichSuPage() {
         Toàn bộ giáo án, đề thi, bài tập đã tạo — lưu trên trình duyệt này, tải lại bất kỳ lúc nào.
       </p>
 
+      {allEntries.length > 0 && (
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Tìm theo tên bài..."
+            className="w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-muted/50 outline-none focus:border-pine sm:max-w-xs"
+          />
+          <div className="flex flex-wrap gap-1.5">
+            {TYPE_FILTERS.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setTypeFilter(f.id)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                  typeFilter === f.id ? "bg-pine text-paper" : "bg-sand text-ink-muted hover:bg-ink/10"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {visibleEntries.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-ink/15 bg-paper-card/60 px-6 py-16 text-center">
-          <p className="text-sm text-ink-muted">Chưa có nội dung nào. Soạn giáo án, đề thi hoặc bài tập để thấy lịch sử tại đây.</p>
+          <p className="text-sm text-ink-muted">
+            {allEntries.length === 0
+              ? "Chưa có nội dung nào. Soạn giáo án, đề thi hoặc bài tập để thấy lịch sử tại đây."
+              : "Không tìm thấy kết quả phù hợp với bộ lọc hiện tại."}
+          </p>
         </div>
       ) : (
         <div className="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-paper-card shadow-sm">

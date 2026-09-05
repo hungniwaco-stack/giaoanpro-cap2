@@ -95,19 +95,19 @@ export default function ActivationModal({ onClose }: { onClose: () => void }) {
             Hoặc nhắn Zalo nếu cần hỗ trợ
           </a>
 
-          <div className="mt-5 border-t border-ink/10 pt-4">
-            <label className="text-sm text-ink-muted">Đã có mã kích hoạt?</label>
+          <div className="mt-5 rounded-xl border-2 border-seal/40 bg-seal/5 p-4">
+            <label className="text-sm font-semibold text-seal">🔑 Đã có mã kích hoạt? Nhập ngay để mở khoá</label>
             <div className="mt-2 flex gap-2">
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Nhập mã kích hoạt"
-                className="flex-1 rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-muted/50 outline-none focus:border-pine"
+                className="glow-activation flex-1 rounded-lg border-2 border-seal/50 bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-muted/50 outline-none focus:border-seal"
               />
               <button
                 onClick={handleActivate}
                 disabled={loading || !code}
-                className="rounded-lg bg-sand px-4 py-2 text-sm font-medium text-ink-muted transition hover:bg-ink/10 disabled:opacity-40"
+                className="rounded-lg bg-seal px-4 py-2 text-sm font-semibold text-paper transition hover:bg-seal/90 disabled:opacity-40"
               >
                 {loading ? "..." : "Kích hoạt"}
               </button>
