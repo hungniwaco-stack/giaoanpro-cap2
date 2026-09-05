@@ -42,15 +42,18 @@ const TYPE_FILTERS: { id: HistoryEntry["type"] | "all"; label: string }[] = [
 ];
 
 export default function LichSuPage() {
-  const { entries, removeEntry } = useHistoryStore();
-  // Zustand persist only reads localStorage after mount; rendering the list
-  // before that would mismatch the server-rendered empty state.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const { entries, setEntries, removeEntry } = useHistoryStore();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch("/api/history")
+      .then((r) => r.json())
+      .then(setEntries)
+      .finally(() => setLoading(false));
+  }, [setEntries]);
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<HistoryEntry["type"] | "all">("all");
 
-  const allEntries = mounted ? entries : [];
+  const allEntries = entries;
   const visibleEntries = allEntries.filter(
     (e) =>
       (typeFilter === "all" || e.type === typeFilter) &&
@@ -61,7 +64,7 @@ export default function LichSuPage() {
     <main className="px-6 py-8 sm:px-10 sm:py-10">
       <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Lịch Sử Soạn Thảo</h1>
       <p className="mt-1 text-sm text-ink-muted">
-        Toàn bộ giáo án, đề thi, bài tập đã tạo — lưu trên trình duyệt này, tải lại bất kỳ lúc nào.
+        Toàn bộ giáo án, đề thi, bài tập đã tạo — lưu trên tài khoản của bạn, xem lại trên bất kỳ thiết bị nào.
       </p>
 
       {allEntries.length > 0 && (
@@ -88,7 +91,9 @@ export default function LichSuPage() {
         </div>
       )}
 
-      {visibleEntries.length === 0 ? (
+      {loading ? (
+        <p className="mt-8 text-center text-sm text-ink-muted">Đang tải...</p>
+      ) : visibleEntries.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-ink/15 bg-paper-card/60 px-6 py-16 text-center">
           <p className="text-sm text-ink-muted">
             {allEntries.length === 0

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Type } from "@google/genai";
 import { checkTrial, consumeTrial } from "@/lib/trial-guard";
-import { ai } from "@/lib/gemini";
+import { addHistoryEntry } from "@/lib/history-store";
+import { ai, GEMINI_MODEL } from "@/lib/gemini";
 
 const responseSchema = {
   type: Type.OBJECT,
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: GEMINI_MODEL,
       contents: buildPrompt(monHoc, khoiLop, tenBai, count),
       config: { responseMimeType: "application/json", responseSchema },
     });
@@ -75,7 +76,9 @@ export async function POST(req: NextRequest) {
     if (!text) throw new Error("Gemini không trả về nội dung");
 
     await consumeTrial(trial.uid, trial.ip, "de-thi");
-    return NextResponse.json({ ...JSON.parse(text), tenBai, monHoc, khoiLop });
+    const result = { ...JSON.parse(text), tenBai, monHoc, khoiLop };
+    await addHistoryEntry(trial.uid, "de-thi", tenBai, result);
+    return NextResponse.json(result);
   } catch (err) {
     console.error("De-thi error:", err);
     return NextResponse.json({ error: "Không thể tạo đề kiểm tra lúc này, vui lòng thử lại" }, { status: 502 });

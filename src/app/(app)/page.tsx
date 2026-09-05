@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { useHistoryStore } from "@/store/useHistoryStore";
+import { useProfileStore } from "@/store/useProfileStore";
 import { generateLessonPlanDocx, docxToBlob } from "@/lib/docx-generator";
 import { generateLessonPlanPptx, downloadPptx } from "@/lib/pptx-generator";
 import { lessonPlanToMarkdown } from "@/lib/export-text";
@@ -20,6 +21,7 @@ const MON_HOC = [
 export default function GiaoAnPage() {
   const { trialsLeft, isVip, useTrial } = useAppStore();
   const addEntry = useHistoryStore((s) => s.addEntry);
+  const { name: teacherName, school } = useProfileStore();
   const [khoiLop, setKhoiLop] = useState(KHOI_LOP[0]);
   const [monHoc, setMonHoc] = useState(MON_HOC[0]);
   const [tenBai, setTenBai] = useState("");
@@ -67,7 +69,7 @@ export default function GiaoAnPage() {
   }
 
   async function downloadDocx(plan: LessonPlan) {
-    const doc = generateLessonPlanDocx(plan);
+    const doc = generateLessonPlanDocx(plan, { name: teacherName, school });
     const blob = await docxToBlob(doc);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
