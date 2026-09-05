@@ -70,11 +70,11 @@ function ActivityCard({ heading, body, phut }: { heading: string; body: string; 
           </span>
         )}
       </div>
-      <dl className="mt-2 space-y-1 text-sm">
+      <dl className="mt-2 space-y-1.5 text-sm">
         {fields.map(([, label, value], i) => (
-          <div key={i} className="flex gap-2">
-            <dt className="shrink-0 text-ink-muted">{label}:</dt>
-            <dd className="text-ink">{value}</dd>
+          <div key={i} className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+            <dt className="shrink-0 font-medium text-ink-muted sm:font-normal">{label}:</dt>
+            <dd className="min-w-0 flex-1 text-ink">{value}</dd>
           </div>
         ))}
       </dl>
@@ -95,15 +95,15 @@ function splitSubGroups(body: string) {
 
 function BulletList({ items, badge }: { items: string[]; badge?: boolean }) {
   return (
-    <ul className="space-y-1.5">
+    <ul className="space-y-2">
       {items.map((item, i) => (
-        <li key={i} className="flex items-start gap-2 text-sm text-ink">
+        <li key={i} className="flex flex-col gap-1 text-sm text-ink sm:flex-row sm:items-start sm:gap-2">
           {badge && (
-            <span className="mt-0.5 shrink-0 rounded-full bg-sand px-2 py-0.5 text-[11px] font-medium text-pine-dark">
+            <span className="inline-block w-fit shrink-0 rounded-full bg-sand px-2 py-0.5 text-[11px] font-medium text-pine-dark sm:mt-0.5">
               {classifyNangLuc(item)}
             </span>
           )}
-          <span>{item}</span>
+          <span className="min-w-0 flex-1">{item}</span>
         </li>
       ))}
     </ul>
