@@ -25,7 +25,17 @@ export const useAppStore = create<AppState>()(
       activate: (expiresAt) => set({ isVip: true, vipExpiresAt: expiresAt }),
       trialsLeft: (feature) => Math.max(0, FREE_TRIALS_PER_FEATURE - (get().trialsUsed[feature] ?? 0)),
     }),
-    { name: "giao-an-pro-storage" }
+    {
+      name: "giao-an-pro-storage",
+      // isVip tự lưu trong localStorage nhưng không tự hết hạn — nếu không
+      // sửa lại ở đây, sau khi gói hết hạn (server đã chặn đúng) giao diện
+      // vẫn hiện "Tài khoản VIP — dùng không giới hạn" vô thời hạn.
+      onRehydrateStorage: () => (state) => {
+        if (state?.isVip && (!state.vipExpiresAt || state.vipExpiresAt <= Date.now())) {
+          state.isVip = false;
+        }
+      },
+    }
   )
 );
 
