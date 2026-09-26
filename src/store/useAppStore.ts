@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type Feature = "giao-an" | "de-thi" | "bai-tap" | "chat";
+export type Feature = "giao-an" | "de-thi" | "bai-tap" | "chat" | "phan-tich";
 
 const FREE_TRIALS_PER_FEATURE = 3;
 

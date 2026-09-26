@@ -7,6 +7,7 @@ import { useProfileStore } from "@/store/useProfileStore";
 import { generateLessonPlanDocx, docxToBlob } from "@/lib/docx-generator";
 import { generateLessonPlanPptx, downloadPptx } from "@/lib/pptx-generator";
 import { lessonPlanToMarkdown } from "@/lib/export-text";
+import { toMauGuide } from "@/lib/mau-truong";
 import type { LessonPlan } from "@/lib/types";
 import ActivationModal from "@/components/ActivationModal";
 import ResultPanel from "@/components/ResultPanel";
@@ -21,7 +22,7 @@ const MON_HOC = [
 export default function GiaoAnPage() {
   const { trialsLeft, isVip, useTrial } = useAppStore();
   const addEntry = useHistoryStore((s) => s.addEntry);
-  const { name: teacherName, school } = useProfileStore();
+  const { name: teacherName, school, mau } = useProfileStore();
   const [khoiLop, setKhoiLop] = useState(KHOI_LOP[0]);
   const [monHoc, setMonHoc] = useState(MON_HOC[0]);
   const [tenBai, setTenBai] = useState("");
@@ -47,6 +48,7 @@ export default function GiaoAnPage() {
           monHoc,
           tenBai,
           trichDoanSgk: trichDoanSgk.trim() || undefined,
+          mau: toMauGuide(mau),
         }),
       });
 
@@ -144,6 +146,12 @@ export default function GiaoAnPage() {
                 className="mt-1 w-full resize-none rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-muted/50 outline-none focus:border-pine"
               />
             </div>
+
+            <p className="mt-3 text-xs text-ink-muted" suppressHydrationWarning>
+              {mau.taiLieu.length > 0
+                ? `Đang áp dụng phụ lục của Sở (${mau.taiLieu.length} tài liệu) — chỉnh trong Cấu Hình Cá Nhân.`
+                : "Chưa có phụ lục của Sở — đính kèm trong Cấu Hình Cá Nhân để giáo án sát yêu cầu địa phương."}
+            </p>
 
             {error && <p className="mt-3 text-sm text-seal">{error}</p>}
 
