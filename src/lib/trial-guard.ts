@@ -8,7 +8,7 @@ const FREE_TRIALS_PER_FEATURE = 3;
 const DAY_S = 60 * 60 * 24;
 const ENTRY_TTL_S = DAY_S * 400; // outlives the 1-year uid cookie
 const IP_WINDOW_S = DAY_S;
-const IP_DAILY_CAP = 12; // 4 features x 3 trials
+const IP_DAILY_CAP = 15; // 5 features x 3 trials
 
 const MAX_ACTIVATIONS_PER_CODE = 3;
 
@@ -101,4 +101,14 @@ export async function tryRedeemCode(code: string, uid: string): Promise<boolean>
 export async function getUid() {
   const jar = await cookies();
   return jar.get("giao_an_uid")?.value ?? null;
+}
+
+// Xem trước quyết định của checkTrial mà KHÔNG trừ lượt — để giao diện hiện đúng
+// số lượt còn lại theo server, thay vì bộ đếm cục bộ có thể lệch.
+export async function getTrialStatus(ip: string) {
+  const uid = await getUid();
+  const entry = uid ? await getTrialEntry(uid) : { counts: {}, activatedUntil: null };
+  const isVip = !!entry.activatedUntil && entry.activatedUntil > Date.now();
+  const blocked = !isVip && (await getIpEntry(ip)).count >= IP_DAILY_CAP;
+  return { counts: entry.counts, blocked };
 }
