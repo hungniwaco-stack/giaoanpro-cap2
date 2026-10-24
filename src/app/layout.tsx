@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Literata, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import RefCapture from "@/components/RefCapture";
+import { PLAN_PRICE_VND } from "@/lib/plans";
 
 const literata = Literata({
   variable: "--font-literata",
@@ -14,8 +15,7 @@ const beVietnam = Be_Vietnam_Pro({
   subsets: ["vietnamese", "latin"],
 });
 
-// ponytail: đổi sang domain thật khi deploy, cần cho OG image tuyệt đối + sitemap.
-const SITE_URL = "https://aigiaoanpro.vn";
+const SITE_URL = "https://cap2.giaoanpro.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -32,6 +32,27 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+const prices = Object.values(PLAN_PRICE_VND);
+
+const softwareJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Giáo Án Pro — Cấp 2",
+  applicationCategory: "EducationalApplication",
+  operatingSystem: "Web",
+  inLanguage: "vi",
+  url: SITE_URL,
+  description: metadata.description,
+  offers: {
+    "@type": "AggregateOffer",
+    priceCurrency: "VND",
+    lowPrice: Math.min(...prices),
+    highPrice: Math.max(...prices),
+    offerCount: prices.length,
+  },
+  provider: { "@type": "Organization", name: "Giáo Án Pro", url: "https://www.giaoanpro.com" },
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -39,6 +60,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${literata.variable} ${beVietnam.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-paper font-sans text-ink">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
         <RefCapture />
         {children}
       </body>

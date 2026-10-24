@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://aigiaoanpro.vn";
+const SITE_URL = "https://cap2.giaoanpro.com";
 const ROUTES = ["", "/dieu-khoan", "/bao-mat", "/hoan-tien"];
 
 export default function sitemap(): MetadataRoute.Sitemap {

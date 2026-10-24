@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LegalPage from "@/components/LegalPage";
 
-export const metadata: Metadata = { title: "Điều khoản sử dụng — Giáo Án Pro Cấp 2" };
+export const metadata: Metadata = {
+  title: "Điều khoản sử dụng — Giáo Án Pro Cấp 2",
+  description: "Điều khoản sử dụng dịch vụ Giáo Án Pro Cấp 2 dành cho giáo viên THCS: phạm vi dịch vụ, gói trả phí và trách nhiệm của người dùng.",
+  alternates: { canonical: "/dieu-khoan" },
+};
 
 export default function TermsPage() {
   return (

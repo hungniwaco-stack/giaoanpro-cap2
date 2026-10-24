@@ -4,7 +4,11 @@ import LegalPage from "@/components/LegalPage";
 import { PLAN_LABEL, PLAN_PRICE_VND, type Plan } from "@/lib/plans";
 import { COMMISSION_RATE, commissionFor } from "@/lib/affiliate-limits";
 
-export const metadata: Metadata = { title: "Điều khoản cộng tác viên — Giáo Án Pro Cấp 2" };
+export const metadata: Metadata = {
+  title: "Điều khoản cộng tác viên — Giáo Án Pro Cấp 2",
+  description: "Điều khoản chương trình cộng tác viên Giáo Án Pro Cấp 2: hoa hồng, thanh toán, hoàn tiền và các quy định áp dụng.",
+  alternates: { canonical: "/doi-tac/dieu-khoan" },
+};
 
 const PLANS: Plan[] = ["1M", "6M", "1Y"];
 const vnd = (n: number) => `${n.toLocaleString("vi-VN")}đ`;
