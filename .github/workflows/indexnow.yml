@@ -1,0 +1,48 @@
+# Báo IndexNow (Bing và các công cụ tìm kiếm tham gia) sau mỗi lần deploy production có đổi nội dung.
+# Khoá IndexNow là mã công khai (file public/cf2088b2985d35689f69b88874e24c8d.txt), không phải bí mật.
+name: IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths: ["src/**", "public/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  statuses: read
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HOST: cap2.giaoanpro.com
+      KEY: cf2088b2985d35689f69b88874e24c8d
+    steps:
+      - name: Chờ Vercel deploy xong
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 50); do
+            state=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/status" --jq .state)
+            echo "lần $i: $state"
+            if [ "$state" = "success" ]; then exit 0; fi
+            if [ "$state" = "failure" ] || [ "$state" = "error" ]; then
+              echo "::notice::Deploy lỗi, bỏ qua IndexNow"; echo "SKIP=1" >> "$GITHUB_ENV"; exit 0
+            fi
+            sleep 20
+          done
+          echo "::notice::Hết thời gian chờ deploy, bỏ qua IndexNow"; echo "SKIP=1" >> "$GITHUB_ENV"
+
+      - name: Gửi URL trong sitemap cho IndexNow
+        if: env.SKIP != '1'
+        run: |
+          urls=$(curl -fsS "https://$HOST/sitemap.xml" | grep -o '<loc>[^<]*</loc>' | sed 's/<[^>]*>//g')
+          echo "Số URL: $(echo "$urls" | wc -l)"
+          body=$(printf '%s\n' "$urls" | jq -R . | jq -s --arg host "$HOST" --arg key "$KEY" \
+            '{host: $host, key: $key, keyLocation: ("https://" + $host + "/" + $key + ".txt"), urlList: .}')
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "https://api.indexnow.org/indexnow" \
+            -H 'Content-Type: application/json; charset=utf-8' -d "$body")
+          echo "IndexNow trả về: $code"
+          if [ "$code" != "200" ] && [ "$code" != "202" ]; then exit 1; fi
