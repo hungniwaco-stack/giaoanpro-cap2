@@ -3,6 +3,7 @@ import { Type } from "@google/genai";
 import { checkTrial, consumeTrial } from "@/lib/trial-guard";
 import { addHistoryEntry } from "@/lib/history-store";
 import { askAI, aiConfigured } from "@/lib/ai";
+import { MATH_INSTRUCTION } from "@/lib/prompt-fragments";
 
 const responseSchema = {
   type: Type.OBJECT,
@@ -38,6 +39,7 @@ Hãy soạn một đề kiểm tra cho:
 - Số câu hỏi: khoảng ${soCauhoi} câu, trộn cả trắc nghiệm (loại "trac_nghiem", có 4 lựa chọn A/B/C/D trong "luaChon") và tự luận (loại "tu_luan", không cần "luaChon").
 - Mỗi câu đều phải có "dapAn" chính xác, súc tích.
 - Độ khó tăng dần, phù hợp trình độ học sinh khối lớp trên.
+- ${MATH_INSTRUCTION}
 
 Chỉ trả về JSON đúng theo schema đã cho, không thêm markdown, không thêm giải thích.`;
 }

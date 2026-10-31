@@ -3,6 +3,7 @@ import { Type } from "@google/genai";
 import { checkTrial, consumeTrial } from "@/lib/trial-guard";
 import { addHistoryEntry } from "@/lib/history-store";
 import { askAI, aiConfigured } from "@/lib/ai";
+import { MATH_INSTRUCTION } from "@/lib/prompt-fragments";
 import { parseMauGuide, mauGuidePromptBlock, type MauGuide } from "@/lib/mau-truong";
 
 const responseSchema = {
@@ -39,6 +40,10 @@ const responseSchema = {
 };
 
 function buildPrompt(monHoc: string, khoiLop: string, tenBai: string, trichDoanSgk?: string, mau?: MauGuide) {
+  const khongSgk = trichDoanSgk
+    ? ""
+    : `
+- Không có trích đoạn SGK ở trên, nên KHÔNG viện dẫn số bài tập, số hoạt động hay đoạn văn/thơ cụ thể "trong SGK" (ví dụ "Bài 2", "HĐ1"); thay vào đó tự nêu đầy đủ ngữ liệu và nội dung bài tập ngay trong giáo án.`;
   const sgkBlock = trichDoanSgk
     ? `\nDưới đây là trích đoạn gốc từ sách giáo khoa cho đúng bài này — hãy bám sát nội dung, ví dụ, số liệu trong trích đoạn này thay vì tự suy diễn:\n"""\n${trichDoanSgk}\n"""\n`
     : "";
@@ -54,6 +59,9 @@ Yêu cầu về nội dung:
 - Mục tiêu bài học chia rõ 3 nhóm: Kiến thức, Năng lực, Phẩm chất (mỗi nhóm 2-4 gạch đầu dòng, cụ thể, đo lường được).
 - Thiết bị dạy học và học liệu: liệt kê ngắn gọn, thực tế (SGK, máy chiếu, phiếu học tập, v.v.).
 - Tiến trình dạy học gồm đúng 4 hoạt động theo khung 5512: "Hoạt động 1: Mở đầu", "Hoạt động 2: Hình thành kiến thức mới", "Hoạt động 3: Luyện tập", "Hoạt động 4: Vận dụng". Mỗi hoạt động phải có đủ 4 phần: Mục tiêu, Nội dung, Sản phẩm, Tổ chức thực hiện — viết súc tích, đúng chuyên môn, có thể dùng ngay trên lớp.
+${khongSgk}
+- Nếu nhắc tới phiếu học tập hoặc phiếu bài tập thì nêu luôn các câu hỏi/bài tập chính của phiếu ngay trong phần mô tả hoạt động, không chỉ ghi tên phiếu.
+- ${MATH_INSTRUCTION}
 
 Chỉ trả về JSON đúng theo schema đã cho, không thêm markdown, không thêm giải thích.`;
 }

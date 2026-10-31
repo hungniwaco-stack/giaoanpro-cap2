@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkTrial, consumeTrial } from "@/lib/trial-guard";
 import { askAI, aiConfigured } from "@/lib/ai";
+import { MATH_INSTRUCTION } from "@/lib/prompt-fragments";
 
 const SYSTEM_INSTRUCTION =
-  "Bạn là trợ lý AI dành cho giáo viên THCS Việt Nam. Trả lời ngắn gọn, đúng chuyên môn sư phạm, bằng tiếng Việt. Có thể gợi ý hoạt động dạy học, giải thích khái niệm, hoặc góp ý cải thiện nội dung giáo viên đưa ra. Trả lời bằng văn bản thuần tuý, KHÔNG dùng cú pháp markdown (không **in đậm**, không #tiêu đề) — chỉ dùng gạch đầu dòng '-' hoặc số thứ tự khi cần liệt kê.";
+  "Bạn là trợ lý AI dành cho giáo viên THCS Việt Nam. Trả lời ngắn gọn, đúng chuyên môn sư phạm, bằng tiếng Việt. Có thể gợi ý hoạt động dạy học, giải thích khái niệm, hoặc góp ý cải thiện nội dung giáo viên đưa ra. Trả lời bằng văn bản thuần tuý, KHÔNG dùng cú pháp markdown (không **in đậm**, không #tiêu đề) — chỉ dùng gạch đầu dòng '-' hoặc số thứ tự khi cần liệt kê. " + MATH_INSTRUCTION;
 
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_LEN = 2000;
